@@ -13,6 +13,9 @@ public class RealisticRope : MonoBehaviour
     GameObject anchor;
     GameObject interactable;
 
+    // script to get reference to if we are moving cube or not
+    public DraggableCube movableCube;
+
     // line renderer
     LineRenderer lineRenderer;
 
@@ -39,6 +42,7 @@ public class RealisticRope : MonoBehaviour
         // set positions to transforms
         anchor = GameObject.Find("Circle");
         interactable = GameObject.Find("Square");
+        movableCube = interactable.GetComponent<DraggableCube>();
 
         ropeConnection.transform.position = anchor.transform.position;
         //
@@ -72,12 +76,33 @@ public class RealisticRope : MonoBehaviour
         //Compare the current length of the rope with the wanted length
         DebugRopeLength();
 
-        //Move what is hanging from the rope to the end of the rope
-        ropeHangingObject.position = allRopeSections[0].pos;
+        if (!movableCube.selectedObject)
+        {
+            //Move what is hanging from the rope to the end of the rope
+            ropeHangingObject.position = allRopeSections[0].pos;
 
-        //Make what's hanging from the rope look at the next to last rope position to make it rotate with the rope
-        ropeHangingObject.LookAt(allRopeSections[1].pos);
-        interactable.transform.position = ropeHangingObject.transform.position;
+            //Make what's hanging from the rope look at the next to last rope position to make it rotate with the rope
+            ropeHangingObject.LookAt(allRopeSections[1].pos);
+
+            interactable.transform.position = ropeHangingObject.transform.position;
+        }
+        else
+        {
+            // move rope to object position
+            allRopeSections[0] = new RopeSection(ropeHangingObject.position);
+
+            // make rope look at object
+            // allRopeSections[1].LookAt(ropeHangingObject.position);
+
+            ropeHangingObject.transform.position = interactable.transform.position;
+        }
+
+        //set our x rotation to 0 so it doesnt become invisible in 2D space
+        ropeHangingObject.transform.eulerAngles = new Vector3(
+            0,
+            0,
+            ropeHangingObject.transform.eulerAngles.z
+        );
     }
 
     void FixedUpdate()
@@ -281,7 +306,7 @@ public class RealisticRope : MonoBehaviour
             //end of the rope is attached to a box with a mass
             if (i == 0)
             {
-                springMass += ropeHangingObject.GetComponent<Rigidbody>().mass;
+                springMass += ropeHangingObject.GetComponent<Rigidbody2D>().mass;
             }
 
             //Force from gravity
