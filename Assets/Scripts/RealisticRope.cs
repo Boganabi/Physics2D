@@ -22,17 +22,21 @@ public class RealisticRope : MonoBehaviour
     // a list with all rope sections
     public List<RopeSection> allRopeSections = new List<RopeSection>();
     //Rope data
-    private float ropeSectionLength = 1f;
+    private float ropeSectionLength = 0.5f;
 
     //Data we can change to change the properties of the rope
     //Spring constant
-    public float kRope = 40f;
+    public float kRope = -40f;
     //Damping from rope friction constant
-    public float dRope = 2f;
+    public float dRope = -5f;
     //Damping from air resistance constant
-    public float aRope = 0.05f;
+    public float aRope = -50.0f;
     //Mass of one rope section
-    public float mRopeSection = 0.2f;
+    public float mRopeSection = 1f;
+    // gravitational constant
+    public float gravity = -90.81f;
+    // number of sections
+    public float numSections = 5;
 
     void Start()
     {
@@ -53,7 +57,7 @@ public class RealisticRope : MonoBehaviour
 
         List<Vector3> ropePositions = new List<Vector3>();
 
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < numSections; i++)
         {
             ropePositions.Add(pos);
 
@@ -90,9 +94,6 @@ public class RealisticRope : MonoBehaviour
         {
             // move rope to object position
             allRopeSections[0] = new RopeSection(ropeHangingObject.position);
-
-            // make rope look at object
-            // allRopeSections[1].LookAt(ropeHangingObject.position);
 
             ropeHangingObject.transform.position = interactable.transform.position;
         }
@@ -310,7 +311,7 @@ public class RealisticRope : MonoBehaviour
             }
 
             //Force from gravity
-            Vector3 gravityForce = springMass * new Vector3(0f, -9.81f, 0f);
+            Vector3 gravityForce = springMass * new Vector3(0f, gravity, 0f);
 
             //The total force on this spring
             Vector3 totalForce = springForce + gravityForce - dampingForce;
